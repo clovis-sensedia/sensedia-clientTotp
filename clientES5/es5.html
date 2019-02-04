@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    <title>Sensedia Authenticator - TOTP com ES5</title>
+  </head>
+  <body>
+    <div class="container">
+    <h1>TOTP - versão ES5</h1>
+    <p>Esta é a implementação do Sensedia Authenticator em página HTML e validação no Javascript. Este é um programa que imitat o Google Authenticator gerando senhas TOTPs a partir de uma chave obtida de algum site (pode-se copiar a chave digitável do programa servidor entregue neste mesmo exercício).</p>
+    <p>As bibliotecas JQuery e Bootstrap são utilizadas apenas para formatação de tela</p>
+    <p>Para utilizar:</p>
+    <ol>
+      <li><a href="es5Cadastro.html">(Cadastro) Selecionar uma senha, digitar ou copiar uma chave secreta para o TOTP e salvar.</a></li>
+      <li><a href="es5Login.html">(Login) Gerar uma senha TOTP (esta página apresenta uma nova senha a cada 30 segundos).</a></li>
+    </ol>
+    <div class="card">
+      <div class="card-body">
+        <h6 class="card-subtitle mb-2 text-muted">Detalhes da implementação</h6>
+        <p class="card-text">As funcionalidades foram implementadas com o auxílio da WebCrypto (https://www.w3.org/TR/WebCryptoAPI/#subtlecrypto-interface) que é
+        a forma atualmente recomendada para realizar operações cripográficas em Javascript.</p>
+        <p class="card-text">Arquivos:
+        <table class="table table-striped">
+          <tbody>
+            <tr>
+              <th scope="row">es5Cadastro.html</th>
+              <td>Formulário de cadastro. Esta página solicita uma senha e uma chave de geração de TOTPs gerada por algum site (pode-se utilizar a chave no formato digitável gerada pelo programa servidor entregue neste exercício). Ainda possui javascript necessário para armazenar essa chave de geração no próprio navegador (local storage) criptografando com a senha digitada.</td>
+            </tr>
+            <tr>
+              <th scope="row">es5crypt.js</th>
+              <td>Javascript com as rotinas de criptografia. A senha digitada é utilizada para gerar uma chave AES-GCM usando algorítmo PBKDF2. A chave AES-GCM é utilizada
+              nas funções encrypt e decrypt.</td>
+            </tr>
+            <tr>
+              <th scope="row">es5TOTP.js</th>
+              <td>Este arquivo contém as funções solicitadas.
+                <ul>
+                  <li>newTOTPKey() - cria uma chave de geração de TOTPs usando a API WebCrypto</li>
+                  <li>createTOTPs() - cria 3 TOTPs. Um baseado na hora atual, um para 30 segundos passados e um para 30 segundos no futuro - isto é para suportar alguma diferença na hora do celular e demora na digitação.</li>
+                  <li>createTOTP() - Cria 1 TOTP para o passo fornecido (horário em segundos dividido por 30). Esta função necessita da chave de geração já importada na WebCrypto, caso a chave esteja no formato de array de bytes deve-se usar a função createTOTPs()</li>
+                </ul>
+              </td>
+            </tr>
+            <tr>
+              <th scope="row">es5login.html</th>
+              <td>Esta página obtém a senha do usuário e fornece um TOTP que deve ser digitado na tela de login do sistema servidor.
+              A senha é utilizada para derivar uma chave AES-GCM que depois é utilizada para descriptografar a chave de geração de TOTPs que esta armazenada no local storage do Browser. Usando a chave de geração, a página solicita a geração de 3 TOTPs (chamando a função createTOTPs()). Depois apresenta a senha TOTP do meio que representa a senha do momento atual.</td>
+            </tr>
+          </tbody>
+        </table>
+        </p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-body">
+        <h6 class="card-subtitle mb-2 text-muted">Sobre a geração do TOTP</h6>
+        <p class="card-text">A função createTOTP() gera TOTPs simplesmente realizando uma assinatura HMAC-SHA1 com a chave de geração sobre o valor do passo (parâmetro time).
+        O valor do passo é calculado no createTOTPs() e é simplesmente os milissegundos a partir de 01/01/1970 dividido por 1000 (para considerar segundos) e depois por 30 (2 passos por minuto)</p>
+        <p class="card-text">O TOTP apresentado é uma simplificação da assinatura gerada para facilitar a digitação pelo usuário.
+        </p>
+      </div>
+    </div>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+  </body>
+</html>
